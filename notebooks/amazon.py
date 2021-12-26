@@ -29,7 +29,7 @@ s = parsed.geturl()
 
 hostname = parsed.hostname
 
-if 'amazon' in hostname:
+if "amazon" in hostname:
     path = parsed.path
 
     match = re.search(r"/[dg]p/(product/)?([0-9a-zA-Z]+)/?", path)
@@ -41,5 +41,3 @@ new_url
 # + tags=[]
 path
 # -
-
-

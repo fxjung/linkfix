@@ -25,5 +25,5 @@ setup(
     install_requires=reqs,
     author="Felix Jung",
     author_email="jung@posteo.de",
-    # entry_points={"console_scripts": ["agent_smith = agent_smith.cli"]},
+    entry_points={"console_scripts": ["linkfix = linkfix.cli"]},
 )
