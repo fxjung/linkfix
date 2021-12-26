@@ -53,8 +53,8 @@ async def main():
         log.debug("clipboard change detected")
         try:
             if platform_ == "Linux":
-                handle_clipboard_X11(True)
-                handle_clipboard_X11(False)
+                # handle_clipboard_X11(primary=True)
+                handle_clipboard_X11(primary=False)
             else:
                 handle_clipboard()
         except Exception as e:
