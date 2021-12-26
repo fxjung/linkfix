@@ -31,7 +31,7 @@ hostname = parsed.hostname
 
 if "amazon" in hostname:
     path = parsed.path
-    
+
     match = re.search(r"/[dg]p/(product/)?([0-9a-zA-Z]+)/?", path)
 
     asin = match[2]
@@ -61,14 +61,9 @@ BeautifulSoup
 # -
 
 
-
-
-
 # + tags=[]
 # soup = BeautifulSoup(page.text, 'html.parser')
 
 # + tags=[]
 # soup
 # -
-
-

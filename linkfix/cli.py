@@ -4,15 +4,11 @@ import asyncio
 import pyperclip
 import platform
 
-from typing import Optional
-from pathlib import Path
-
 from urllib import parse as urlparse
 
 from linkfix.handle_urls import handle_url
 
 # from linkfix import config
-
 
 formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")
 
@@ -29,7 +25,6 @@ app = typer.Typer()
 
 
 def handle_clipboard_X11(primary: bool):
-    # cache = None
     clipboard = pyperclip.paste(primary=primary)
     url = urlparse.urlparse(clipboard)
     if url.scheme:
@@ -53,7 +48,6 @@ async def main():
         log.debug("clipboard change detected")
         try:
             if platform_ == "Linux":
-                # handle_clipboard_X11(primary=True)
                 handle_clipboard_X11(primary=False)
             else:
                 handle_clipboard()
