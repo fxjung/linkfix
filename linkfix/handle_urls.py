@@ -1,7 +1,11 @@
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 
 def handle_url(parsed):
+    log.debug("url detected")
     hostname = parsed.hostname
     url = parsed.geturl()
 
@@ -11,6 +15,7 @@ def handle_url(parsed):
         if match is not None:
             asin = match[2]
             new_url = f"https://{hostname}/dp/{asin}"
+            log.debug(f"detected amazon url: {new_url}")
         else:
             new_url = url
 

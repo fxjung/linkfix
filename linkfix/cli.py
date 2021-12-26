@@ -29,6 +29,7 @@ app = typer.Typer()
 
 
 def handle_clipboard_X11(primary: bool):
+    # cache = None
     clipboard = pyperclip.paste(primary=primary)
     url = urlparse.urlparse(clipboard)
     if url.scheme:
@@ -49,7 +50,7 @@ async def main():
     while True:
         proc = await asyncio.create_subprocess_exec("clipnotify")
         await proc.wait()
-
+        log.debug("clipboard change detected")
         if platform_ == "Linux":
             handle_clipboard_X11(True)
             handle_clipboard_X11(False)
