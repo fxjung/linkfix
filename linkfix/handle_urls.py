@@ -11,9 +11,9 @@ def handle_url(parsed):
 
     if "amazon" in hostname:
         path = parsed.path
-        match = re.search(r"/[dg]p/(product/)?([0-9a-zA-Z]+)/?", path)
+        match = re.search(r"/[dg]p/(?!video/)(?:product/)?([0-9a-zA-Z]+)/?", path)
         if match is not None:
-            asin = match[2]
+            asin = match[1]
             new_url = f"https://{hostname}/dp/{asin}"
             log.debug(f"detected amazon url: {new_url}")
         else:

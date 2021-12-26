@@ -51,11 +51,14 @@ async def main():
         proc = await asyncio.create_subprocess_exec("clipnotify")
         await proc.wait()
         log.debug("clipboard change detected")
-        if platform_ == "Linux":
-            handle_clipboard_X11(True)
-            handle_clipboard_X11(False)
-        else:
-            handle_clipboard()
+        try:
+            if platform_ == "Linux":
+                handle_clipboard_X11(True)
+                handle_clipboard_X11(False)
+            else:
+                handle_clipboard()
+        except Exception as e:
+            log.error(f"{e} was raised.")
 
 
 @app.callback(invoke_without_command=True)
