@@ -65,7 +65,7 @@ def cli_main():
                 asyncio.set_event_loop(asyncio.new_event_loop())
         loop = asyncio.get_event_loop()
         loop.create_task(main())
-        results = loop.run_forever()
+        loop.run_forever()
     except KeyboardInterrupt:
         print("\nShutting down.")
     finally:
