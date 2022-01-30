@@ -1,3 +1,5 @@
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -72,12 +74,38 @@ async def main():
 service_app = typer.Typer()
 app.add_typer(service_app, name="service")
 
+def install_clipnotify():
+    typer.echo("Clipnotify is missing, we have to install it.")
+    clipnotify_path = Path(__file__).parents[1] / "clipnotify"
+    if not clipnotify_path.exists():
+        typer.echo("Submodule missing, cloning now...")
+        subprocess.run(["git", "submodule", "update", "--init"])
+        if not clipnotify_path.exists():
+            typer.echo("Download failed. Giving up.")
+            raise typer.Abort()
+    os.chdir(clipnotify_path)
+    typer.echo("Compiling...")
+    subprocess.run(['make'])
+    typer.echo("Installing...")
+    subprocess.run(['sudo', 'make', 'install'])
+
+    if shutil.which("clipnotify") is not None:
+        typer.echo("Successfully installed clipnotify.")
+    else:
+        typer.echo("Installing clipnotify failed. Giving up.")
+        raise typer.Abort()
+
 
 @service_app.command()
 def install(debug: bool = typer.Option(False, help="Set log level to DEBUG")):
     """
     Install linkfix as a systemd user service.
     """
+
+    if platform.system() == "Linux":
+        if shutil.which("clipnotify") is None:
+            install_clipnotify()
+
     service_unit = (Path(__file__).parents[1] / config.unit_fname).read_text()
     service_unit = service_unit.format(
         python_path=sys.executable,
@@ -125,7 +153,10 @@ def cli_main(
                 if platform.system() == "Windows":
                     asyncio.set_event_loop(asyncio.ProactorEventLoop())
                 else:
+                    if shutil.which("clipnotify") is None:
+                        install_clipnotify()
                     asyncio.set_event_loop(asyncio.new_event_loop())
+
             loop = asyncio.get_event_loop()
             loop.create_task(main())
             loop.run_forever()
