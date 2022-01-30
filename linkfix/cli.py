@@ -80,7 +80,7 @@ def install_prerequisites():
     if platform.freedesktop_os_release()["ID_LIKE"] == "debian":
         typer.echo("We are on debian-like, trying to install prerequisites...")
         subprocess.run(
-            ["sudo", "apt-get", "install", "xsel", "libx11-dev", "libxfixes-dev"],
+            ["sudo", "apt-get", "install", "build-essential", "xsel", "libx11-dev", "libxfixes-dev"],
             check=True,
         )
         typer.echo("Successfully installed prerequisites.")

@@ -2,6 +2,7 @@ Fixes weblinks.
 
 ## Installation
 - Needs Python 3.10
+- Running it as a service requires Linux and `systemd`
 
 ```bash
 git clone https://github.com/fxjung/linkfix.git
