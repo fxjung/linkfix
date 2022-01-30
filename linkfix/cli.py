@@ -2,13 +2,14 @@ import os
 import shutil
 import subprocess
 import sys
-from pathlib import Path
-
 import typer
 import logging
 import asyncio
 import pyperclip
 import platform
+
+
+from pathlib import Path
 
 from urllib import parse as urlparse
 
@@ -74,20 +75,60 @@ async def main():
 service_app = typer.Typer()
 app.add_typer(service_app, name="service")
 
+
+def install_prerequisites():
+    if platform.freedesktop_os_release()["ID_LIKE"] == "debian":
+        typer.echo("We are on debian-like, trying to install prerequisites...")
+        subprocess.run(
+            ["sudo", "apt-get", "install", "xsel", "libx11-dev", "libxfixes-dev"],
+            check=True,
+        )
+        typer.echo("Successfully installed prerequisites.")
+    else:
+        typer.echo("Don't know how to install prerequisites on this platform.")
+        raise typer.Abort()
+
+
 def install_clipnotify():
     typer.echo("Clipnotify is missing, we have to install it.")
-    clipnotify_path = Path(__file__).parents[1] / "clipnotify"
+    clipnotify_path = (Path(__file__).parents[1] / "clipnotify").resolve()
     if not clipnotify_path.exists():
         typer.echo("Submodule missing, cloning now...")
-        subprocess.run(["git", "submodule", "update", "--init"])
-        if not clipnotify_path.exists():
-            typer.echo("Download failed. Giving up.")
+        try:
+            subprocess.run(["git", "submodule", "update", "--init"])
+            if not clipnotify_path.exists():
+                typer.echo(
+                    "Submodule cloning failed, cloning now directly via https..."
+                )
+                subprocess.run(
+                    [
+                        "git",
+                        "clone",
+                        "https://github.com/fxjung/clipnotify.git",
+                        str(clipnotify_path),
+                    ]
+                )
+                if not clipnotify_path.exists():
+                    raise Exception
+        except:
+            typer.echo("Clipnotify download failed. Giving up.")
             raise typer.Abort()
+
     os.chdir(clipnotify_path)
     typer.echo("Compiling...")
-    subprocess.run(['make'])
+    try:
+        subprocess.run(["make"], check=True)
+    except subprocess.CalledProcessError:
+        install_prerequisites()
+        typer.echo("Trying again...")
+        try:
+            subprocess.run(["make"], check=True)
+        except subprocess.CalledProcessError:
+            typer.echo("Giving up.")
+            raise typer.Abort()
+
     typer.echo("Installing...")
-    subprocess.run(['sudo', 'make', 'install'])
+    subprocess.run(["sudo", "make", "install"], check=True)
 
     if shutil.which("clipnotify") is not None:
         typer.echo("Successfully installed clipnotify.")
@@ -105,6 +146,8 @@ def install(debug: bool = typer.Option(False, help="Set log level to DEBUG")):
     if platform.system() == "Linux":
         if shutil.which("clipnotify") is None:
             install_clipnotify()
+        if shutil.which("xsel") is None:
+            install_prerequisites()
 
     service_unit = (Path(__file__).parents[1] / config.unit_fname).read_text()
     service_unit = service_unit.format(
@@ -113,6 +156,7 @@ def install(debug: bool = typer.Option(False, help="Set log level to DEBUG")):
         args=" --debug" if debug else "",
     )
     target_path = Path("~/.config/systemd/user").expanduser() / config.unit_fname
+    target_path.parent.mkdir(exist_ok=True, parents=True)
     target_path.write_text(service_unit)
     typer.echo(f"Created systemd unit file at {target_path}")
 
@@ -155,6 +199,8 @@ def cli_main(
                 else:
                     if shutil.which("clipnotify") is None:
                         install_clipnotify()
+                    if shutil.which("xsel") is None:
+                        install_prerequisites()
                     asyncio.set_event_loop(asyncio.new_event_loop())
 
             loop = asyncio.get_event_loop()

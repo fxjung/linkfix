@@ -1,6 +1,7 @@
 Fixes weblinks.
 
 ## Installation
+- Needs Python 3.10
 
 ```bash
 git clone https://github.com/fxjung/linkfix.git
