@@ -1,0 +1,11 @@
+[Unit]
+Description=Linkfix clipboard sanitizer
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart={python_path} {linkfix_path}{args}
+
+[Install]
+WantedBy=multi-user.target
