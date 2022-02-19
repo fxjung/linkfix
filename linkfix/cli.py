@@ -161,6 +161,7 @@ def install(debug: bool = typer.Option(False, help="Set log level to DEBUG")):
     typer.echo(f"Created systemd unit file at {target_path}")
 
     subprocess.run(["systemctl", "--user", "daemon-reload"])
+    subprocess.run(["systemctl", "--user", "enable", config.unit_fname.split(".")[0]])
     subprocess.run(["systemctl", "--user", "restart", config.unit_fname.split(".")[0]])
     typer.echo(f"Told systemd to run the service")
 
